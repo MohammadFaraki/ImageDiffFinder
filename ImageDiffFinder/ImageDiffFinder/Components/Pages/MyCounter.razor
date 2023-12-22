@@ -3,7 +3,7 @@
 
 @inject NavigationManager NavManager
 @inject AppState AppState
-@inject AuthenticationStateProvider AuthenticationStateProvider
+@* @inject AuthenticationStateProvider AuthenticationStateProvider *@
 
 @* Components with InteractiveAuto render mode should be placed in Cliend project *@
 @* @rendermode InteractiveAuto *@ 
@@ -31,6 +31,10 @@
 @code {
     private int currentCount = 0;
 
+    // https://learn.microsoft.com/en-us/aspnet/core/blazor/security/?view=aspnetcore-8.0#expose-the-authentication-state-as-a-cascading-parameter
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
+
     private void IncrementCount()
     {
         currentCount++;
@@ -42,7 +46,10 @@
         // var token = AppState.Token; // AppState is an scoped service
 
         // We just want a way notify app to check auth, the user in below cmd doesn't matter at all
-        ((CustomAuthenticationStateProvider)AuthenticationStateProvider)
-            .AuthenticateUser("myUser");
+        // ((CustomAuthenticationStateProvider)AuthenticationStateProvider)
+        //     .AuthenticateUser("myUser");
+
+        var authState = await authenticationState;
+
     }
 }

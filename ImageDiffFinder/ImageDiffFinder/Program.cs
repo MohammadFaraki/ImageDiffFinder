@@ -15,6 +15,7 @@ using ImageDiffFinder;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using ImageDiffFinder.Services;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -315,8 +316,12 @@ builder.Services.AddHttpClient();
 builder.Services.AddCascadingAuthenticationState();
 
 // https://learn.microsoft.com/en-us/aspnet/core/blazor/security/server/?view=aspnetcore-8.0&source=recommendations&tabs=visual-studio#implement-a-custom-authenticationstateprovider
+//builder.Services.AddScoped<AuthenticationStateProvider,
+//    CustomAuthenticationStateProvider>();
+////builder.Services.AddScoped<AuthenticationStateProvider,
+////    RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
 builder.Services.AddScoped<AuthenticationStateProvider,
-    CustomAuthenticationStateProvider>();
+    RevalidatingIdentityAuthenticationStateProvider>();
 
 
 
