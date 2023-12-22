@@ -16,6 +16,8 @@ using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using ImageDiffFinder.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Components.Server.Circuits;
+using ImageDiffFinder.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -325,6 +327,18 @@ builder.Services.AddScoped<AuthenticationStateProvider,
 
 
 
+// https://learn.microsoft.com/en-us/aspnet/core/blazor/security/server/additional-scenarios?view=aspnetcore-8.0#access-authenticationstateprovider-in-outgoing-request-middleware
+// https://learn.microsoft.com/en-us/aspnet/core/blazor/fundamentals/dependency-injection?view=aspnetcore-8.0#access-server-side-blazor-services-from-a-different-di-scope
+// https://devblogs.microsoft.com/dotnet/asp-net-core-updates-in-dotnet-8-preview-3/
+//builder.Services.AddScoped<CircuitServicesAccessor>();
+builder.Services.AddScoped<CircuitServicesAccessor>();
+builder.Services.AddScoped<CircuitHandler, ServicesAccessorCircuitHandler>();
+builder.Services.AddTransient<AuthenticationStateHandler>();
+builder.Services.AddHttpClient("HttpMessageHandler")
+    .AddHttpMessageHandler<AuthenticationStateHandler>();
+
+
+
 
 var app = builder.Build();
 
@@ -343,6 +357,8 @@ else
     app.UseDeveloperExceptionPage();
     app.UseMigrationsEndPoint();
 }
+
+app.UseMiddleware<CustomHeaderMiddleware>();
 
 #region Create db
 //using (var scope = app.ApplicationServices.CreateScope())
