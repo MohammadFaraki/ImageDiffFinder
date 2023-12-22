@@ -1,0 +1,304 @@
+﻿@page "/signin"
+@* @page "/" *@
+
+@* @rendermode InteractiveServer *@
+@* I've specified the render mode for the entire app in where Routes componenet is used in App.razor. 
+Also, HeadOutlet component used in in App.razor should always have same render mode ass Routes component  *@
+@* @rendermode @(new InteractiveServerRenderMode(prerender: false)) *@
+@* 
+https://learn.microsoft.com/en-us/aspnet/core/blazor/components/render-modes?view=aspnetcore-8.0#custom-shorthand-render-modes
+Prerendering is enabled by default for interactive components.
+
+To disable prerendering for a component instance, pass the prerender flag with a value of false to the render mode:
+
+<... @rendermode="new InteractiveServerRenderMode(prerender: false)" />
+<... @rendermode="new InteractiveWebAssemblyRenderMode(prerender: false)" />
+<... @rendermode="new InteractiveAutoRenderMode(prerender: false)" />
+
+To disable prerendering in a component definition:
+
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
+@rendermode @(new InteractiveAutoRenderMode(prerender: false))
+*@
+
+
+@* @inject IHttpContextAccessor HttpContextAccessor *@
+@using Microsoft.AspNetCore.WebUtilities
+@using Microsoft.Extensions.Options
+@using WebUtils;
+
+@inject ImageDiffContext Context
+@* @inject AppState appState *@
+@inject IOptions<JWTConfig> Options
+@inject ILogger<SignIn> Logger
+
+@inject NavigationManager NavManager
+
+
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject ProtectedLocalStorage ProtectedLocalStore
+
+@* @inject AppStateScoped AppStateScoped *@
+@inject AppState AppState
+
+
+@* @code {
+    ViewData["Title"] = isPersian ? "ورود" : "SignIn";
+} *@
+<PageTitle>Sign in page</PageTitle>
+
+<h1 class="d-flex justify-content-center mt-5 pt-3">@(isPersian ? "ورود" : "Login")</h1>
+<div class="row d-flex justify-content-center mt-5">
+    <div class="col-md-4">
+        @*
+        For an HTML form, always use the @formname attribute directive to assign the form's name.
+        https://learn.microsoft.com/en-us/aspnet/core/blazor/forms/?view=aspnetcore-8.0
+        *@
+        @* <EditForm method="post" EditContext="editContext" OnSubmit="Submit" FormName="signin-form"> *@
+        @* <form method="post" EditContext="editContext" @onsubmit="Submit" @formname="signin-form"> *@
+        <div>
+            @* <DataAnnotationsValidator /> *@
+            @* <CustomValidation @ref="customValidation" /> *@
+            @* <ValidationSummary class="text-danger d-flex flex-column align-items-center" /> *@
+            @* <div asp-validation-summary="ModelOnly" class="text-danger d-flex flex-column align-items-center"></div> *@
+            @* <AntiforgeryToken /> *@
+            <div class="form-group d-flex flex-column align-items-center">
+                @*<label asp-for="SignInVM.UserName" class="control-label mb-2 mt-4" style="font-weight:bold;"></label>*@
+                <label for="SignInVM_UserName" class="control-label mb-2 mt-3" style="font-weight:bold;">
+                    @(isPersian ? MyDictionary.SignInPr[nameof(SignInVM.UserName)]
+                        : MyDictionary.SignInEn[nameof(SignInVM.UserName)])
+                </label>
+                <input style="text-align: center" @bind="SignInVM.UserName" class="form-control" />
+                @* <InputText style="text-align: center" @bind-Value="SignInVM.UserName" class="form-control" /> *@
+                @* <span asp-validation-for="SignInVM.UserName" class="text-danger"></span> *@
+            </div>
+
+            <div class="form-group d-flex flex-column align-items-center">
+                <label for="SignInVM_Password" class="control-label mb-2 mt-5" style="font-weight:bold;">
+                    @(isPersian ? MyDictionary.SignInPr[nameof(SignInVM.Password)]
+                        : MyDictionary.SignInEn[nameof(SignInVM.Password)])
+                </label>
+                <input style="text-align: center" @bind="SignInVM.Password" class="form-control" type="password" />
+                @* <span asp-validation-for="SignInVM.Password" class="text-danger"></span> *@
+            </div>
+            <div class="form-group d-flex justify-content-center mt-5">
+                <label class="control-label mx-2 py-1 @(isPersian ? "order-1" : "")" style="font-weight:bold;">@(isPersian ? "زبان" : "Language")</label>
+                <select @bind="SignInVM.Language" class="px-3 py-1 mx-1">
+                    @if (isPersian)
+                    {
+                        <option value="1" selected="selected">فارسی</option>
+                        <option value="2">English</option>
+                    }
+                    else if (AppState == null || AppState.Language == Languages.English)
+                            {
+                    //<option value="">Select a language</option>
+                        <option value="1">فارسی</option>
+                        <option value="2" selected="selected">English</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group d-flex justify-content-center mb-2 mt-5">
+                @* <input type="button" @onclick="Submit" value="@(isPersian ? "ورود" : "Sign In")" class="btn btn-primary px-5 px-md-0 pb-3" style="font-size:x-large; font-weight:bold; width:50%; border-radius: 15px;" /> *@
+                <button @onclick="Submit" class="btn btn-primary px-5 px-md-0 pb-3" style="font-size:x-large; font-weight:bold; width:50%; border-radius: 15px;">@(isPersian ? "ورود" : "Sign In")</button>
+            </div>
+        @* </form> *@
+        </div>
+    </div>
+</div>
+@*<div>
+    <a style="text-decoration:none;" asp-page="./Register">Create New User Account</a>
+    </div>*@
+<br />
+@if (!String.IsNullOrEmpty(@message))
+{
+    <div>
+        <h6 class="@(isPersian ? "d-flex justify-content-center" : "") text-danger">@message</h6>
+    </div>
+    <br />
+}
+
+
+
+
+
+@code {
+    // AppState AppState { get; set; }
+    bool isPersian;
+
+    // [SupplyParameterFromForm]
+    public SignInVM? SignInVM { get; set; }
+
+    string message;
+
+    JWTConfig config;
+
+    // https://learn.microsoft.com/en-us/aspnet/core/blazor/security/?view=aspnetcore-8.0#expose-the-authentication-state-as-a-cascading-parameter
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
+
+    // private EditContext? editContext;
+
+    // [CascadingParameter(Name = "Http")]
+    // public HttpContext? HttpContext { get; set; }
+
+    // // // Not used for now(it's used to have state managment 
+    // // // object and functions in one base component)
+    // [CascadingParameter]
+    // private MyStateProvider? MyStateProvider { get; set; }
+
+
+
+    protected override async void OnInitialized()
+    {
+        SignInVM ??= new();
+        config = Options.Value;
+
+        // Filling username password with URL parameters if there is any
+        var uri = NavManager.ToAbsoluteUri(NavManager.Uri);
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("Username", out var username))
+            SignInVM.UserName = username;
+
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("Pass", out var pass))
+            SignInVM.Password = pass;
+    }
+
+    protected override async void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+
+            // appState = await HttpContextAccessor.HttpContext.Request.Cookies.GetComplexCookie<AppState>(nameof(AppState));
+            AppState = await BlazorUtils.GetStateAsync<AppState>(ProtectedLocalStore);
+
+            isPersian = AppState == null || AppState.Language == Languages.Persian;
+
+            // editContext = new(SignInVM);
+
+            // AppStateScoped.Token = AppState.Token;
+            // (await authenticationState).
+
+            StateHasChanged();
+        }
+    }
+
+    private async void Submit()
+    {
+        // Logger.LogInformation("Id = {Id}", Model?.Id);
+
+        // if (editContext.GetValidationMessages().Any())
+        // {
+        //     message = "Something wrong with entered inputs!";
+        //     return;
+        // }
+
+        Person? person = await Context.People
+                       .Include(u => u.Credential)
+                       .FirstOrDefaultAsync(u =>
+                        u.Credential.UserName == SignInVM.UserName &&
+                        u.Credential.Password == SignInVM.Password);
+
+
+        string role = "";
+        if (person is Manager)
+            role = nameof(Roles.Manager);
+        // else if (person is Instructor)
+        //     role = nameof(Roles.Instructor);
+
+        if (SignInVM.UserName == "Admin" &&
+            SignInVM.Password == "DoDDw4f1wj@ejD!1!?dw")
+        {
+            role = nameof(Roles.Admin);
+        }
+
+        if (person != null || role == nameof(Roles.Admin))
+        {
+            var tokenString = await WebUtils.Utils.GenerateJWT(role, config);
+
+            // AppState AppState = new();
+            AppState = new();
+            // AppState.Person = new Person();
+            // AppState.Person.Credential = new Credential();
+            if (role != nameof(Roles.Admin)) // Just because Admin
+            {
+                // AppState.Person.ID = person.ID;
+                // AppState.Person.Credential.UserName = person.Credential.UserName;
+                // AppState.Person.Email = person.Email;
+                // AppState.Person.FirstMidName = person.FirstMidName;
+                // AppState.Person.LastName = person.LastName;
+                // AppState.Person.BirthDate = person.BirthDate;
+                AppState.PersonUsername = person.Credential.UserName;
+                // if (role == nameof(Roles.Student))
+                //     AppState.StudentDepartmentId = ((Student)person).DepartmentID;
+                // else if (role == nameof(Roles.Manager))
+                //     AppState.ManagerDepartmentId = ((Manager)person).DepartmentID;
+            }
+            AppState.PersonRole = role;
+
+            //return Ok(new { token = tokenString });
+            ////securityState.securityInfo.Add("token", tokenString);
+            ////securityState.securityInfo.Add("userName", loginDetails.UserName);
+            ///
+            //AppState.Token = tokenString;
+            // Althoug, Below line is not that much necessary since Token isn't
+            // stored anywhere in front-end (Neither in Cookie nor in URL query string)
+            // and it's stored in server in session for the client
+            AppState.Token = $"{new Random().Next(11, 99)}{tokenString}{new Random().Next(111, 999)}";
+
+
+            AppState.Language = SignInVM.Language == "2" ? Languages.English : Languages.Persian;
+            //Message = AppState.Language == Languages.Persian ? "!ورود موفق" : "Successfully Signed In!";
+            ////AppState.Message = new Message();
+            ////AppState.Message.Text = AppState.Language == Languages.Persian ? $"!خوش آمدید {@AppState.Person.FullName}" : $"Welcome {@AppState.Person.FullName}!";
+            ////AppState.Message.MessageType = MessageType.Success;
+
+            //return RedirectToPage("/Enrollments/Create",
+            //    new // passing as query string parameters
+            //    {
+            //        access_token = SignInVM.Token
+            //    });
+
+
+            AppState.CreationTime = DateTime.Now;
+            // Use of our custom funtions in SessionExtensions class
+            // So add: using PreEnrollment.Utils;
+            ////if (HttpContext.Session.Get<AppState>(nameof(AppState)) == default)
+            ////{
+            ////    HttpContext.Session.Set<AppState>(nameof(AppState), AppState);
+            ////}
+            ////_logger.LogInformation("Current Time: {Time}", AppState.CreationTime);
+            ////_logger.LogInformation("Session Time: {Time}",
+            ////               HttpContext.Session.Get<AppState>(nameof(AppState)).CreationTime);
+            //////HttpContext.Session.Set<AppState>(nameof(AppState), AppState); ******** latest code
+            // // await HttpContextAccessor.HttpContext.Response.Cookies.SetComplexCookie<AppState>(nameof(AppState), AppState);
+            // await MyStateProvider.SaveChangesAsync();
+            await BlazorUtils.SetStateAsync(ProtectedLocalStore, AppState);
+
+            if (role != nameof(Roles.Admin))
+            {
+                person.Credential.AccessToken = AppState.Token;
+                await Context.SaveChangesAsync();
+            }
+
+
+            //if (role == nameof(Roles.Student))
+            //    return RedirectToPage("/Enrollments/Index");
+            //else
+            //    //return RedirectToPage("/Index");
+            //    return RedirectToPage("/Statistics");
+            // // return RedirectToPage("/Enrollments/Index");
+            // NavManager.NavigateTo($"/counter2", forceLoad: true);
+            NavManager.NavigateTo($"/counter2");
+        }
+        else
+        {
+            //return Unauthorized();
+            // AppState AppState = await HttpContextAccessor.HttpContext.Request.Cookies.GetComplexCookie<AppState>(nameof(AppState));
+            AppState = await BlazorUtils.GetStateAsync<AppState>(ProtectedLocalStore);
+            bool isPersian = AppState == null || AppState.Language == Languages.Persian;
+            message = isPersian ? "!نام کاربری یا رمز اشتباه است" :
+                   "There is no user with your entered credentials!";
+        }
+    }
+}

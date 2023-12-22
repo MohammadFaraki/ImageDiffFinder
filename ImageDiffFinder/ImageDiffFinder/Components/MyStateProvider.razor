@@ -1,0 +1,61 @@
+﻿@*
+    Tutorial link
+    https://learn.microsoft.com/en-us/aspnet/core/blazor/state-management?view=aspnetcore-8.0&pivots=server#factor-out-the-state-preservation-to-a-common-location
+*@
+@* This componenet isn't used in app yet *@
+
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject ProtectedLocalStorage ProtectedLocalStore
+
+@if (isLoaded)
+{
+    <CascadingValue Value="@this">
+        @ChildContent
+    </CascadingValue>
+}
+else
+{
+    <p>Loading...</p>
+}
+
+@code {
+    private bool isLoaded;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    // public int CurrentCount { get; set; }
+    public AppState? AppState { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoaded = true;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // var result = await ProtectedLocalStore.GetAsync<int>("count");
+            var result = await ProtectedLocalStore.GetAsync<AppState>(nameof(AppState));
+            // CurrentCount = result.Success ? result.Value : 0;
+            AppState = result.Success ? result.Value : default;
+            
+            
+            StateHasChanged();
+        }
+    }
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     // var result = await ProtectedLocalStore.GetAsync<int>("count");
+    //     var result = await ProtectedLocalStore.GetAsync<AppState>(nameof(AppState));
+    //     // CurrentCount = result.Success ? result.Value : 0;
+    //     AppState = result.Success ? result.Value : default;
+    //     isLoaded = true;
+    // }
+
+    public async Task SaveChangesAsync()
+    {
+        await ProtectedLocalStore.SetAsync(nameof(AppState), AppState);
+    }
+}

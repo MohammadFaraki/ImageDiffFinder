@@ -1,0 +1,39 @@
+﻿
+<Router AppAssembly="@typeof(Program).Assembly" AdditionalAssemblies="new[] { typeof(Client._Imports).Assembly }">
+    <Found Context="routeData">
+        @* <RouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)" /> *@
+        @* To provide AuthenticationState cascading parameter for decendent components *@
+        <AuthorizeRouteView RouteData="@routeData" 
+            DefaultLayout="@typeof(Layout.MainLayout)" />
+
+        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+    </Found>
+</Router>
+
+
+@* To provide state throughout the whole component in app *@
+@* <MyStateProvider>
+    <Router AppAssembly="@typeof(Program).Assembly" AdditionalAssemblies="new[] { typeof(Client._Imports).Assembly }">
+        <Found Context="routeData">
+            <RouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)" />
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        </Found>
+    </Router>
+</MyStateProvider> *@
+
+
+
+
+@* <CascadingValue Name="Http" Value="HttpContext">
+    <Router AppAssembly="@typeof(Program).Assembly" AdditionalAssemblies="new[] { typeof(Client._Imports).Assembly }">
+        <Found Context="routeData">
+            <RouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)" />
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        </Found>
+    </Router>
+</CascadingValue>
+
+@code {
+    [CascadingParameter]
+    public HttpContext? HttpContext { get; set; }
+} *@

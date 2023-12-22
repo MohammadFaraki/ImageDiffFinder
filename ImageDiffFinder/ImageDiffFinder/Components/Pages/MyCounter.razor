@@ -1,0 +1,48 @@
+﻿@page "/counter2"
+@using ImageDiffFinder.Services
+
+@inject NavigationManager NavManager
+@inject AppState AppState
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+@* Components with InteractiveAuto render mode should be placed in Cliend project *@
+@* @rendermode InteractiveAuto *@ 
+@* @rendermode @(new InteractiveServerRenderMode(prerender: false)) *@
+
+@* @attribute [Authorize(Policy = nameof(AllowedRoles.Admin_Manager))] *@
+@* @attribute [Authorize(Policy = nameof(AllowedRoles.Student))] *@
+
+<PageTitle>Counter</PageTitle>
+
+<AuthorizeView Policy="@nameof(AllowedRoles.Admin_Manager)">
+    <Authorized>
+        @* <p>Hello, @context.User.Identity?.Name!</p> *@
+        <h1>Counter</h1>
+        <p role="status">Current count: @currentCount</p>
+        <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+    </Authorized>
+    <NotAuthorized>
+        <p>You're not authorized.</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+
+
+@code {
+    private int currentCount = 0;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+
+    protected override async void OnInitialized()
+    {
+        // NavManager.Refresh(forceReload: false); // refreshes scoped service which is not desirable
+        // var token = AppState.Token; // AppState is an scoped service
+
+        // We just want a way notify app to check auth, the user in below cmd doesn't matter at all
+        ((CustomAuthenticationStateProvider)AuthenticationStateProvider)
+            .AuthenticateUser("myUser");
+    }
+}

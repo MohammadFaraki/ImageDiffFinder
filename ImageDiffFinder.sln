@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34316.72
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageDiffFinder", "ImageDiffFinder\ImageDiffFinder\ImageDiffFinder.csproj", "{A39A99EB-C42C-46D2-8546-11AEF79B1868}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageDiffFinder.Client", "ImageDiffFinder\ImageDiffFinder.Client\ImageDiffFinder.Client.csproj", "{7C902E15-F880-49D7-B2B6-41493EE86A51}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A39A99EB-C42C-46D2-8546-11AEF79B1868}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A39A99EB-C42C-46D2-8546-11AEF79B1868}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A39A99EB-C42C-46D2-8546-11AEF79B1868}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A39A99EB-C42C-46D2-8546-11AEF79B1868}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C902E15-F880-49D7-B2B6-41493EE86A51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C902E15-F880-49D7-B2B6-41493EE86A51}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C902E15-F880-49D7-B2B6-41493EE86A51}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C902E15-F880-49D7-B2B6-41493EE86A51}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3BD87514-13B9-454F-B1E7-D8D4F02C6640}
+	EndGlobalSection
+EndGlobal
