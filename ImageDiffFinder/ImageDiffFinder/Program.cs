@@ -322,8 +322,8 @@ builder.Services.AddCascadingAuthenticationState();
 //    CustomAuthenticationStateProvider>();
 ////builder.Services.AddScoped<AuthenticationStateProvider,
 ////    RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
-builder.Services.AddScoped<AuthenticationStateProvider,
-    RevalidatingIdentityAuthenticationStateProvider>();
+//////builder.Services.AddScoped<AuthenticationStateProvider,
+//////    RevalidatingIdentityAuthenticationStateProvider>();
 
 
 
@@ -331,11 +331,14 @@ builder.Services.AddScoped<AuthenticationStateProvider,
 // https://learn.microsoft.com/en-us/aspnet/core/blazor/fundamentals/dependency-injection?view=aspnetcore-8.0#access-server-side-blazor-services-from-a-different-di-scope
 // https://devblogs.microsoft.com/dotnet/asp-net-core-updates-in-dotnet-8-preview-3/
 //builder.Services.AddScoped<CircuitServicesAccessor>();
-builder.Services.AddScoped<CircuitServicesAccessor>();
-builder.Services.AddScoped<CircuitHandler, ServicesAccessorCircuitHandler>();
-builder.Services.AddTransient<AuthenticationStateHandler>();
-builder.Services.AddHttpClient("HttpMessageHandler")
-    .AddHttpMessageHandler<AuthenticationStateHandler>();
+////builder.Services.AddScoped<CircuitServicesAccessor>();
+////builder.Services.AddScoped<CircuitHandler, ServicesAccessorCircuitHandler>();
+////builder.Services.AddTransient<AuthenticationStateHandler>();
+////builder.Services.AddHttpClient("HttpMessageHandler")
+////    .AddHttpMessageHandler<AuthenticationStateHandler>();
+
+// https://www.youtube.com/watch?v=iq2btD9WufI
+builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 
 
 
@@ -385,20 +388,21 @@ using (var scope = app.Services.CreateScope())
 // Call UseStatusCodePages before request handling middleware. 
 // For example, call UseStatusCodePages before the Static File Middleware and the Endpoints Middleware.
 //app.UseStatusCodePages();
-app.UseStatusCodePages(async context =>
-{
-    var request = context.HttpContext.Request;
-    var response = context.HttpContext.Response;
+// It was working well, I commented it for easier tests
+////app.UseStatusCodePages(async context =>
+////{
+////    var request = context.HttpContext.Request;
+////    var response = context.HttpContext.Response;
 
-    if (response.StatusCode == (int)HttpStatusCode.Unauthorized)
-    // you may also check requests path to do this only for specific methods       
-    // && request.Path.Value.StartsWith("/specificPath")
+////    if (response.StatusCode == (int)HttpStatusCode.Unauthorized)
+////    // you may also check requests path to do this only for specific methods       
+////    // && request.Path.Value.StartsWith("/specificPath")
 
-    {
-        //response.Redirect("/signin");
-        response.Redirect("/");
-    }
-});
+////    {
+////        //response.Redirect("/signin");
+////        response.Redirect("/");
+////    }
+////});
 
 
 //app.UseHttpsRedirection();

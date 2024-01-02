@@ -1,5 +1,6 @@
 ﻿@page "/counter2"
 @using ImageDiffFinder.Services
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 
 @inject NavigationManager NavManager
 @inject AppState AppState
@@ -11,15 +12,22 @@
 
 @* @attribute [Authorize(Policy = nameof(AllowedRoles.Admin_Manager))] *@
 @* @attribute [Authorize(Policy = nameof(AllowedRoles.Student))] *@
+@* @attribute [Authorize(Roles = "Admin")] *@
+@* @attribute [Authorize(Roles = "Admin,Manager")] *@
+
+@inject IJSRuntime js
+@inject ProtectedLocalStorage ProtectedLocalStore
 
 <PageTitle>Counter</PageTitle>
 
 <AuthorizeView Policy="@nameof(AllowedRoles.Admin_Manager)">
     <Authorized>
-        @* <p>Hello, @context.User.Identity?.Name!</p> *@
+        <p>Hello, @context.User.Identity.Name!</p>
         <h1>Counter</h1>
         <p role="status">Current count: @currentCount</p>
         <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+        <br />
+        <button class="btn btn-outline-primary" @onclick="DisplayGreeting">Display greeting alert</button>
     </Authorized>
     <NotAuthorized>
         <p>You're not authorized.</p>
@@ -33,7 +41,7 @@
 
     // https://learn.microsoft.com/en-us/aspnet/core/blazor/security/?view=aspnetcore-8.0#expose-the-authentication-state-as-a-cascading-parameter
     [CascadingParameter]
-    private Task<AuthenticationState>? authenticationState { get; set; }
+    private Task<AuthenticationState> authenticationState { get; set; }
 
     private void IncrementCount()
     {
@@ -49,7 +57,24 @@
         // ((CustomAuthenticationStateProvider)AuthenticationStateProvider)
         //     .AuthenticateUser("myUser");
 
-        var authState = await authenticationState;
+        // var authState = await authenticationState;
 
+    }
+
+    // protected override async void OnAfterRender(bool firstRender)
+    // {
+    //     if (firstRender)
+    //     {
+    //         AppState = await BlazorUtils.GetStateAsync<AppState>(ProtectedLocalStore);
+
+    //         StateHasChanged();
+    //     }
+    // }
+
+    private async Task DisplayGreeting()
+    {
+        var authState = await authenticationState;
+        var message = $"Hello {authState.User.Identity.Name}";
+        await js.InvokeVoidAsync("alert", message);
     }
 }

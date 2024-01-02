@@ -2,7 +2,10 @@
 {
     using System.Security.Claims;
     using System.Threading.Tasks;
+    using ImageDiffFinder.Models.Other;
     using Microsoft.AspNetCore.Components.Authorization;
+    using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+    using WebUtils;
 
     /// <summary>
     /// https://learn.microsoft.com/en-us/aspnet/core/blazor/security/server/?view=aspnetcore-8.0&source=recommendations&tabs=visual-studio#implement-a-custom-authenticationstateprovider
@@ -10,27 +13,58 @@
     /// </summary>
     public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     {
-        public override Task<AuthenticationState> GetAuthenticationStateAsync()
-        {
-            var identity = new ClaimsIdentity();
-            var user = new ClaimsPrincipal(identity);
+        private readonly ProtectedLocalStorage _localStorage;
+        private ClaimsPrincipal _anonymous = new ClaimsPrincipal(new ClaimsIdentity());
 
-            return Task.FromResult(new AuthenticationState(user));
+        public CustomAuthenticationStateProvider(ProtectedLocalStorage localStorage)
+        {
+            _localStorage = localStorage;
         }
 
-        public void AuthenticateUser(string userIdentifier)
+        public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            var identity = new ClaimsIdentity(new[]
+            try
             {
-            new Claim(ClaimTypes.Name, userIdentifier),
-        }, "Custom Authentication");
+                // To show authorizing message, just for test
+                await Task.Delay(2000);
 
-            var user = new ClaimsPrincipal(identity);
+                var appState = await BlazorUtils.GetStateAsync<AppState>(_localStorage);
+                if (appState == null || string.IsNullOrEmpty(appState.Token))
+                    return await Task.FromResult(new AuthenticationState(_anonymous));
 
-            NotifyAuthenticationStateChanged(
-                Task.FromResult(new AuthenticationState(user)));
+                var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, appState.PersonUsername),
+                    new Claim(ClaimTypes.Role, appState.PersonRole),
+                }, "CustomAuth"));
+                return await Task.FromResult(new AuthenticationState(claimsPrincipal));
+            }
+            catch // Used when user modified local storage or when prerender is on
+            {
+                return await Task.FromResult(new AuthenticationState(_anonymous));
+            }
+        }
 
-            //base.AuthenticationStateChanged
+        public async Task UpdateAuthenticationState(AppState appState)
+        {
+            ClaimsPrincipal claimsPrincipal;
+
+            if (appState != null && !string.IsNullOrEmpty(appState.Token))
+            {
+                await BlazorUtils.SetStateAsync(_localStorage, appState);
+                claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, appState.PersonUsername),
+                    new Claim(ClaimTypes.Role, appState.PersonRole)
+                }));
+            }
+            else
+            {
+                await BlazorUtils.DeleteAppStateAsync<AppState>(_localStorage);
+                claimsPrincipal = _anonymous;
+            }
+
+            NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(claimsPrincipal)));
         }
     }
 }

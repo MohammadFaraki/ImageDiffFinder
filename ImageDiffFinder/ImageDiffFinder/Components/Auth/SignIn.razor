@@ -24,6 +24,7 @@ To disable prerendering in a component definition:
 
 
 @* @inject IHttpContextAccessor HttpContextAccessor *@
+@using ImageDiffFinder.Services
 @using Microsoft.AspNetCore.WebUtilities
 @using Microsoft.Extensions.Options
 @using WebUtils;
@@ -41,6 +42,8 @@ To disable prerendering in a component definition:
 
 @* @inject AppStateScoped AppStateScoped *@
 @inject AppState AppState
+
+@inject AuthenticationStateProvider authStateProvider
 
 
 @* @code {
@@ -234,6 +237,10 @@ To disable prerendering in a component definition:
                 // else if (role == nameof(Roles.Manager))
                 //     AppState.ManagerDepartmentId = ((Manager)person).DepartmentID;
             }
+            else
+            {
+                AppState.PersonUsername = "Mohamad Admin";
+            }
             AppState.PersonRole = role;
 
             //return Ok(new { token = tokenString });
@@ -273,7 +280,7 @@ To disable prerendering in a component definition:
             //////HttpContext.Session.Set<AppState>(nameof(AppState), AppState); ******** latest code
             // // await HttpContextAccessor.HttpContext.Response.Cookies.SetComplexCookie<AppState>(nameof(AppState), AppState);
             // await MyStateProvider.SaveChangesAsync();
-            await BlazorUtils.SetStateAsync(ProtectedLocalStore, AppState);
+            // // await BlazorUtils.SetStateAsync(ProtectedLocalStore, AppState);
 
             if (role != nameof(Roles.Admin))
             {
@@ -289,7 +296,12 @@ To disable prerendering in a component definition:
             //    return RedirectToPage("/Statistics");
             // // return RedirectToPage("/Enrollments/Index");
             // NavManager.NavigateTo($"/counter2", forceLoad: true);
-            NavManager.NavigateTo($"/counter2");
+
+            var customAuthStateProvider = (CustomAuthenticationStateProvider)authStateProvider;
+            await customAuthStateProvider.UpdateAuthenticationState(AppState);
+
+            NavManager.NavigateTo($"/counter2", forceLoad: true);
+            // NavManager.NavigateTo($"/counter2", forceLoad: false);
         }
         else
         {

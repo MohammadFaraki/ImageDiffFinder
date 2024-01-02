@@ -1,4 +1,7 @@
-﻿@inherits LayoutComponentBase
+﻿@using ImageDiffFinder.Services
+@inherits LayoutComponentBase
+@inject AuthenticationStateProvider authStateProvider
+@inject NavigationManager navManager
 
 <div class="page">
     <div class="sidebar">
@@ -9,6 +12,15 @@
         <div class="top-row px-4">
             <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
         </div>
+        <AuthorizeView>
+            <Authorized>
+                <a @onclick="Logout" href="javascript:void(0)">Logout</a>
+                @* <button @onclick="Logout">Logout</button> *@
+            </Authorized>
+            <NotAuthorized>
+                <a href="/signin">Sign in</a>
+            </NotAuthorized>
+        </AuthorizeView>
 
         <article class="content px-4">
             @Body
@@ -21,3 +33,13 @@
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+
+@code{
+    private async Task Logout()
+    {
+        var customAuthStateProvider = (CustomAuthenticationStateProvider)authStateProvider;
+        await customAuthStateProvider.UpdateAuthenticationState(null);
+        // navManager.NavigateTo("/", true);
+        navManager.NavigateTo("/signin", true);
+    }
+}

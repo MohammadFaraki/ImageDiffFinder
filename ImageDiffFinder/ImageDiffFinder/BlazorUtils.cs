@@ -36,7 +36,16 @@ namespace ImageDiffFinder
             return result.Success ? result.Value : default;
         }
 
-        
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T">State object type</typeparam>
+        /// <param name="protectedBrowserStore"></param>
+        /// <returns></returns>
+        internal static async Task DeleteAppStateAsync<T>(ProtectedLocalStorage protectedBrowserStore)
+        {
+            var name = typeof(T).Name;
+            await protectedBrowserStore.DeleteAsync(name);
+        }
     }
 }
