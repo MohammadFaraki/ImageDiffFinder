@@ -340,7 +340,10 @@ builder.Services.AddCascadingAuthenticationState();
 // https://www.youtube.com/watch?v=iq2btD9WufI
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 
-
+// https://learn.microsoft.com/en-us/aspnet/core/blazor/fundamentals/signalr?preserve-view=true&view=aspnetcore-8.0#monitor-server-side-circuit-activity
+// https://www.youtube.com/watch?v=MaLjiR9YSbs&t=3060s
+//builder.Services.AddIdleCircuitHandler(options => options.IdleTimeout = TimeSpan.FromSeconds(5));
+builder.Services.AddIdleCircuitHandler();
 
 
 var app = builder.Build();

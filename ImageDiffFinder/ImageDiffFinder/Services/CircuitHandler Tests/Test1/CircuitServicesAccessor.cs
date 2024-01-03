@@ -4,6 +4,7 @@ namespace ImageDiffFinder.Services
 {
     /// <summary>
     /// Tutorials
+    /// https://learn.microsoft.com/en-us/aspnet/core/blazor/fundamentals/signalr?preserve-view=true&view=aspnetcore-8.0#monitor-server-side-circuit-activity
     /// https://learn.microsoft.com/en-us/aspnet/core/blazor/fundamentals/dependency-injection?view=aspnetcore-8.0#access-server-side-blazor-services-from-a-different-di-scope
     /// https://learn.microsoft.com/en-us/aspnet/core/blazor/security/server/additional-scenarios?view=aspnetcore-8.0#access-authenticationstateprovider-in-outgoing-request-middleware
     /// https://devblogs.microsoft.com/dotnet/asp-net-core-updates-in-dotnet-8-preview-3/

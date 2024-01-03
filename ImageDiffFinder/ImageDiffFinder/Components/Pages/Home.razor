@@ -1,8 +1,47 @@
 ﻿@page "/"
+@using ImageDiffFinder.Services
+@using Microsoft.AspNetCore.Components.Server.Circuits
 @* @page "/home" *@
+
+@inject CircuitHandler CircuitHandler
 
 <PageTitle>Home</PageTitle>
 
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
+<br />
+<br />
+
+<p>The count is: @count</p>
+<buttonn @onclick="IncreamentCount">Increament Count</buttonn>
+
+
+<p>Circuit handler testing</p>
+<br />
+@if (((IdleCircuitHandler)CircuitHandler).IsIdle)
+{
+    <p>Zzzzzzzz...</p>
+}
+
+
+
+@code{
+    int count = 0;
+
+    protected override void OnInitialized()
+    {
+        ((IdleCircuitHandler)CircuitHandler).CircuitIdle += CircuitIdle;
+    }
+
+    async void CircuitIdle(object? sender, EventArgs args) 
+    {
+        await InvokeAsync(() => StateHasChanged());
+    }
+
+
+    private void IncreamentCount()
+    {
+        count++;
+    }
+}
