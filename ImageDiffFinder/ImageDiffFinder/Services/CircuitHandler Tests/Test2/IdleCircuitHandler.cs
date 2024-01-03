@@ -17,12 +17,13 @@ namespace ImageDiffFinder.Services
         public IdleCircuitHandler(/*IOptions<IdleCircuitOptions> options,*/
             ILogger<IdleCircuitHandler> logger)
         {
+            this.logger = logger;
             timer = new System.Timers.Timer();
             //timer.Interval = options.Value.IdleTimeout.TotalMilliseconds;
             timer.Interval = TimeSpan.FromSeconds(5).TotalMilliseconds;
             timer.AutoReset = false;
             timer.Elapsed += IdleTimerElapsed;
-            this.logger = logger;
+            timer.Start();
         }
 
         private void IdleTimerElapsed(object? sender, System.Timers.ElapsedEventArgs e)
